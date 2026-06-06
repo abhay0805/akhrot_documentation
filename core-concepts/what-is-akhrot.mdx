@@ -1,0 +1,71 @@
+---
+title: "What is Akhrot"
+description: "A shared memory and context layer for multi-LLM systems."
+icon: "compass"
+---
+
+Akhrot is a **shared memory and context layer** that sits beneath your AI applications. It captures durable knowledge from model interactions and serves it back to any model, any agent, and any session that asks for it.
+
+## The problem
+
+LLMs are stateless. Every conversation starts from zero. When your application spans multiple models — GPT for reasoning, Claude for writing, Gemini for vision, an open model for cost — the situation gets worse:
+
+- Each model has its own context window.
+- Context written in one provider's session is invisible to another.
+- Agents in multi-agent workflows lose state at every handoff.
+- Users have to repeat themselves — forever.
+
+## The Akhrot solution
+
+<Steps>
+  <Step title="Ingest">
+    Akhrot listens to conversations and extracts **durable facts, decisions, and preferences** using the GML extraction pipeline.
+  </Step>
+  <Step title="Store">
+    Facts are stored in a structured memory graph with vector embeddings, tags, sources, and provenance.
+  </Step>
+  <Step title="Recall">
+    Any model, agent, or session can query Akhrot to retrieve the right memories at the right time.
+  </Step>
+  <Step title="Orchestrate">
+    Akhrot routes the correct slice of memory to the correct model for the task.
+  </Step>
+</Steps>
+
+## What Akhrot is not
+
+<Warning>
+  **Akhrot is not an agent framework.** It does not replace LangGraph, CrewAI, or your orchestrator. It is the memory layer beneath them.
+</Warning>
+
+<Warning>
+  **Akhrot is not a vector database.** It uses vector search, but vector DBs store chunks. Akhrot stores **extracted facts with structure, provenance, and a graph**.
+</Warning>
+
+## Mental model
+
+```text
+        ┌────────┐   ┌────────┐   ┌────────┐   ┌────────┐
+        │ Claude │   │  GPT   │   │ Gemini │   │  Grok  │
+        └───┬────┘   └───┬────┘   └───┬────┘   └───┬────┘
+            └────────┬─┴──────────┴────────┘
+                     │
+              ┌─────┴─────┐
+              │   Akhrot   │   ← GML layer
+              │  (memory)  │
+              └───────────┘
+```
+
+One shared brain. Many models drink from it.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="How Akhrot works" icon="diagram-project" href="/core-concepts/how-akhrot-works">
+    Pipeline-level architecture.
+  </Card>
+
+  <Card title="GML Architecture" icon="layer-group" href="/core-concepts/gml-architecture">
+    Deep dive on the GML layer.
+  </Card>
+</CardGroup>

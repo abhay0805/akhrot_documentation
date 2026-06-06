@@ -1,0 +1,87 @@
+---
+title: "Memory Recall"
+description: "Retrieve relevant context across sessions and models."
+icon: "magnifying-glass"
+---
+
+Recall is how memory gets back into a model's context. Akhrot combines semantic similarity, structured filters, recency, and graph traversal in a single ranked result.
+
+## Basic recall
+
+```ts
+const memories = await akhrot.memory.recall({
+  userId: "user_42",
+  query: "What database are we using?",
+  limit: 5,
+});
+```
+
+## Scoped recall
+
+Restrict recall to a project, team, or agent.
+
+```ts
+const memories = await akhrot.memory.recall({
+  userId: "user_42",
+  query: "deploy strategy",
+  scope: ["project:billing-service", "team:platform"],
+});
+```
+
+## Model-aware recall
+
+GML shapes the response to the target model's context budget.
+
+```ts
+const memories = await akhrot.memory.recall({
+  userId: "user_42",
+  query,
+  targetModel: "gpt-4o-mini",
+  maxTokens: 1500,
+});
+```
+
+## Structured filters
+
+```ts
+await akhrot.memory.recall({
+  userId: "user_42",
+  query: "preferences",
+  filters: {
+    type: ["preference", "decision"],
+    tags: { any: ["stack", "infra"] },
+    createdAfter: "2026-01-01",
+  },
+});
+```
+
+## Recall modes
+
+| Mode | When to use |
+| --- | --- |
+| `semantic` | Open-ended natural-language queries |
+| `structured` | Exact filters (type/tag/scope) |
+| `hybrid`_(default)_ | Best of both |
+| `graph` | Traverse relationships from a seed entity |
+
+## Response shape
+
+```json
+{
+  "recallId": "rcl_01HX...",
+  "memories": [
+    {
+      "id": "mem_123",
+      "fact": "Team chose Postgres for the billing service",
+      "score": 0.91,
+      "source": "claude-3.5",
+      "createdAt": "2026-05-12T14:02:00Z"
+    }
+  ],
+  "latencyMs": 38
+}
+```
+
+<Tip>
+  Every `recallId` is traceable via [the trace API](/api-reference/trace).
+</Tip>

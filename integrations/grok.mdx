@@ -1,0 +1,57 @@
+---
+title: "Grok"
+description: "Use Akhrot memory with xAI Grok models."
+icon: "x"
+---
+
+Grok uses an OpenAI-compatible API, so the Akhrot integration is a near-mirror of the [ChatGPT integration](/integrations/chatgpt).
+
+## Install
+
+```bash
+npm install @akhrot/sdk openai
+```
+
+## Recall \+ generate
+
+```ts
+import OpenAI from "openai";
+import { Akhrot } from "@akhrot/sdk";
+
+const grok = new OpenAI({
+  apiKey: process.env.XAI_API_KEY,
+  baseURL: "https://api.x.ai/v1",
+});
+const akhrot = new Akhrot({ apiKey: process.env.AKHROT_API_KEY! });
+
+async function chat(userId: string, input: string) {
+  const slice = await akhrot.orchestrate.route({
+    userId,
+    query: input,
+    targetModel: "grok-2",
+  });
+
+  const res = await grok.chat.completions.create({
+    model: "grok-2-latest",
+    messages: [
+      { role: "system", content: slice.system },
+      { role: "user", content: input },
+    ],
+  });
+
+  await akhrot.memory.ingest({
+    userId,
+    source: "grok-2",
+    messages: [
+      { role: "user", content: input },
+      { role: "assistant", content: res.choices[0].message.content ?? "" },
+    ],
+  });
+
+  return res;
+}
+```
+
+<Tip>
+  Because Akhrot is model-agnostic, the _same_ memory store can be shared between your Grok, GPT, Claude, and Gemini deployments.
+</Tip>

@@ -1,0 +1,71 @@
+---
+title: "Recall"
+description: "POST /memory/recall — retrieve a model-ready slice of memory."
+icon: "magnifying-glass"
+---
+
+## Endpoint
+
+```text
+POST /v1/memory/recall
+```
+
+## Request body
+
+```json
+{
+  "userId": "user_42",
+  "scope": ["project:billing"],
+  "query": "What database are we using?",
+  "mode": "hybrid",
+  "targetModel": "gpt-4o",
+  "maxTokens": 1500,
+  "limit": 10,
+  "filters": {
+    "type": ["decision", "preference"],
+    "tags": { "any": ["infra"] },
+    "createdAfter": "2026-01-01"
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `query` | string | Natural-language query |
+| `mode` | enum | `semantic` \| `structured` \| `hybrid` \| `graph` |
+| `targetModel` | string | The model the slice will be sent to |
+| `maxTokens` | number | Budget for the slice |
+| `limit` | number | Max memories returned |
+| `filters` | object | Structured filters |
+
+## Response
+
+```json
+{
+  "recallId": "rcl_01HX...",
+  "memories": [
+    {
+      "id": "mem_01HX...",
+      "fact": "Team chose Postgres for the billing service",
+      "score": 0.91,
+      "source": "claude-3.5-sonnet",
+      "createdAt": "2026-05-12T14:02:00Z"
+    }
+  ],
+  "systemPromptFragment": "Known facts about this user/project:\n- Team chose Postgres for the billing service\n",
+  "latencyMs": 38
+}
+```
+
+## cURL
+
+```bash
+curl -X POST https://api.gml-akhrot.com/v1/memory/recall \
+  -H "Authorization: Bearer $AKHROT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user_42",
+    "query": "What database are we using?",
+    "targetModel": "gpt-4o"
+  }'
+```

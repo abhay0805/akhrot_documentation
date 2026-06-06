@@ -1,0 +1,45 @@
+---
+title: "Cursor"
+description: "Persistent project memory across Cursor sessions."
+icon: "arrow-pointer"
+---
+
+Cursor \+ Akhrot gives you an AI pair programmer that **actually remembers your project**.
+
+## Install
+
+Akhrot integrates with Cursor via the [MCP server](/integrations/mcp).
+
+In `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "akhrot": {
+      "command": "npx",
+      "args": ["-y", "@akhrot/mcp"],
+      "env": { "AKHROT_API_KEY": "ak_live_..." }
+    }
+  }
+}
+```
+
+## What changes
+
+Without Akhrot, every Cursor chat starts cold and forgets architectural decisions the moment you close the panel. With Akhrot:
+
+- Decisions made yesterday show up tomorrow.
+- Architectural rationale survives model switches inside Cursor.
+- Code-style preferences carry across repos in the same project scope.
+
+## Recommended scope mapping
+
+```text
+repo: org/billing-service  →  scope: project:billing-service
+repo: org/frontend         →  scope: project:frontend
+user preferences           →  scope: user:<you>
+```
+
+## Example chat
+
+> **You:** _Refactor this to use the new auth pattern._ **Cursor \+ Akhrot:** _Using the JWT-with-rotating-refresh-tokens pattern we agreed on in #213, and following the file layout you preferred last week..._

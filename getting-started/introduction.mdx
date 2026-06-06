@@ -1,0 +1,65 @@
+---
+title: "Introduction"
+description: "Context that survives the model. Welcome to GML Akhrot."
+icon: "hand-wave"
+---
+
+<Note>
+  **Akhrot is a shared memory and context layer for multi-LLM systems**, powered by GML (Gigizs Multi-LLM Layer).
+</Note>
+
+Modern AI applications use multiple models — GPT, Claude, Gemini, Grok, and a growing ecosystem of open-source models. These models **do not share memory**. Every handoff loses context. Every session starts cold. Valuable information is repeatedly re-sent.
+
+Akhrot solves this by providing **persistent, queryable memory** that survives:
+
+- Model switches
+- Agent handoffs
+- Session restarts
+- Context window limitations
+
+## The Akhrot promise
+
+<CardGroup cols={2}>
+  <Card title="One shared brain" icon="brain">
+    Many models drink from it. Memory written by Claude is instantly recallable by GPT, Gemini, or any agent.
+  </Card>
+
+  <Card title="Memory stays" icon="infinity">
+    Swap models tomorrow. Your facts, decisions, and history remain intact.
+  </Card>
+
+  <Card title="Beneath the frameworks" icon="layer-group">
+    Akhrot is not another agent framework. It is the memory layer beneath them.
+  </Card>
+
+  <Card title="Context fidelity" icon="check-double">
+    Recall is grounded, scoped, and verifiable — not lossy summarization.
+  </Card>
+</CardGroup>
+
+## What you can build
+
+- **Persistent chatbots** that remember every user across sessions and models.
+- **Multi-agent systems** where a planning agent's decisions flow into a coding agent's execution.
+- **Research assistants** that build durable knowledge over weeks of investigation.
+- **Team knowledge bases** that capture decisions, rationale, and tribal knowledge.
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/getting-started/quickstart">
+    Write and recall your first memory in under 5 minutes.
+  </Card>
+
+  <Card title="What is Akhrot" icon="compass" href="/core-concepts/what-is-akhrot">
+    Understand the architecture and the GML layer.
+  </Card>
+
+  <Card title="Integrations" icon="plug" href="/integrations/claude">
+    Connect Akhrot to Claude, ChatGPT, Gemini, Grok, MCP, and more.
+  </Card>
+
+  <Card title="Cookbook" icon="flask" href="/cookbook/coding-agent">
+    Real-world recipes for agents, chatbots, and knowledge bases.
+  </Card>
+</CardGroup>

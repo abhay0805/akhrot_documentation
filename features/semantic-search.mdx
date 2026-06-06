@@ -1,0 +1,61 @@
+---
+title: "Semantic Search"
+description: "Vector-powered search across all stored memories, scoped to user, team, or project."
+icon: "magnifying-glass-plus"
+---
+
+Semantic search powers most recalls. It is also exposed directly for cases where you want raw matches without the recall pipeline's reranking and shaping.
+
+## Basic search
+
+```ts
+const hits = await akhrot.search({
+  userId: "user_42",
+  query: "database migration plan",
+  topK: 10,
+});
+```
+
+## Embedding strategy
+
+GML chooses an embedder per project, but you can pin one.
+
+```ts
+await akhrot.search({
+  userId: "user_42",
+  query: "...",
+  embedder: "text-embedding-3-large",
+});
+```
+
+Supported embedders include OpenAI, Voyage, Cohere, and the open-source `bge-m3` family for self-hosted deployments.
+
+## Hybrid search
+
+Combine semantic similarity with keyword and tag filters.
+
+```ts
+await akhrot.search({
+  userId: "user_42",
+  query: "migration",
+  keywords: ["postgres", "mongo"],
+  filters: { tags: { all: ["decision"] } },
+  topK: 20,
+});
+```
+
+## Rerank
+
+For highest precision, enable a reranker.
+
+```ts
+await akhrot.search({ userId, query, rerank: "cohere-rerank-3" });
+```
+
+## When to use search vs recall
+
+| Use search when... | Use recall when... |
+| --- | --- |
+| You want raw matches | You want a model-ready slice |
+| You will rerank yourself | You want GML to do it |
+| You need to display results to a human | You're feeding a model |

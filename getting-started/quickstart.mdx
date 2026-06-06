@@ -1,0 +1,129 @@
+---
+title: "Quickstart"
+description: "Write and recall your first memory in under 5 minutes."
+icon: "bolt"
+---
+
+This guide walks you through writing your first memory, retrieving it from a different model, and verifying that **context survives the model**.
+
+## 1. Get an API key
+
+Sign up at [app.gml-akhrot.com](https://app.gml-akhrot.com) and create a project. Copy your API key.
+
+```bash
+export AKHROT_API_KEY="ak_live_..."
+```
+
+## 2. Install the SDK
+
+<CodeGroup>
+
+```bash npm
+npm install @akhrot/sdk
+```
+
+```bash pnpm
+pnpm add @akhrot/sdk
+```
+
+```bash pip
+pip install akhrot
+```
+
+</CodeGroup>
+
+## 3. Ingest your first memory
+
+<CodeGroup>
+
+```ts TypeScript
+import { Akhrot } from "@akhrot/sdk";
+
+const akhrot = new Akhrot({ apiKey: process.env.AKHROT_API_KEY });
+
+await akhrot.memory.ingest({
+  userId: "user_42",
+  content: "User prefers TypeScript over JavaScript and uses Next.js 15 with the App Router.",
+  source: "claude",
+  tags: ["preferences", "stack"],
+});
+```
+
+```python Python
+from akhrot import Akhrot
+
+akhrot = Akhrot(api_key=os.environ["AKHROT_API_KEY"])
+
+akhrot.memory.ingest(
+    user_id="user_42",
+    content="User prefers TypeScript over JavaScript and uses Next.js 15 with the App Router.",
+    source="claude",
+    tags=["preferences", "stack"],
+)
+```
+
+</CodeGroup>
+
+## 4. Recall from a different model
+
+Now query that same memory from a session that uses **GPT-4** instead of Claude:
+
+<CodeGroup>
+
+```ts TypeScript
+const memories = await akhrot.memory.recall({
+  userId: "user_42",
+  query: "What stack does this user prefer?",
+  model: "gpt-4o",
+});
+
+console.log(memories);
+// => [{ content: "User prefers TypeScript...", score: 0.94, source: "claude" }]
+```
+
+```python Python
+memories = akhrot.memory.recall(
+    user_id="user_42",
+    query="What stack does this user prefer?",
+    model="gpt-4o",
+)
+```
+
+</CodeGroup>
+
+<Check>
+  Memory written by Claude is now recallable by GPT. **Context survived the model switch.**
+</Check>
+
+## 5. Inject into your prompt
+
+```ts
+const memories = await akhrot.memory.recall({ userId: "user_42", query });
+
+const systemPrompt = `
+You are a helpful assistant.
+
+Known facts about this user:
+${memories.map((m) => `- ${m.content}`).join("\n")}
+`;
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/getting-started/installation">
+    Full SDK and runtime setup.
+  </Card>
+
+  <Card title="First Memory" icon="seedling" href="/getting-started/first-memory">
+    A guided walkthrough of ingest \+ recall.
+  </Card>
+
+  <Card title="How Akhrot works" icon="diagram-project" href="/core-concepts/how-akhrot-works">
+    Architecture deep-dive.
+  </Card>
+
+  <Card title="API Reference" icon="code" href="/api-reference/memory">
+    Full API surface.
+  </Card>
+</CardGroup>

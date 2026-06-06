@@ -1,0 +1,113 @@
+---
+title: "Installation"
+description: "Install the Akhrot SDK and configure your environment."
+icon: "download"
+---
+
+Akhrot ships official SDKs for TypeScript/JavaScript and Python, a REST API, an MCP server, and a browser extension.
+
+## SDKs
+
+<CodeGroup>
+
+```bash npm
+npm install @akhrot/sdk
+```
+
+```bash yarn
+yarn add @akhrot/sdk
+```
+
+```bash pnpm
+pnpm add @akhrot/sdk
+```
+
+```bash pip
+pip install akhrot
+```
+
+```bash uv
+uv add akhrot
+```
+
+</CodeGroup>
+
+## Authentication
+
+All requests use a bearer API key.
+
+```bash
+export AKHROT_API_KEY="ak_live_..."
+export AKHROT_PROJECT_ID="prj_..."
+```
+
+<Warning>
+  Never commit API keys to source control. Use environment variables or a secret manager.
+</Warning>
+
+## Initialize the client
+
+<CodeGroup>
+
+```ts TypeScript
+import { Akhrot } from "@akhrot/sdk";
+
+export const akhrot = new Akhrot({
+  apiKey: process.env.AKHROT_API_KEY!,
+  projectId: process.env.AKHROT_PROJECT_ID,
+  // optional: self-hosted endpoint
+  baseUrl: "https://api.gml-akhrot.com",
+});
+```
+
+```python Python
+from akhrot import Akhrot
+import os
+
+akhrot = Akhrot(
+    api_key=os.environ["AKHROT_API_KEY"],
+    project_id=os.environ.get("AKHROT_PROJECT_ID"),
+    base_url="https://api.gml-akhrot.com",
+)
+```
+
+</CodeGroup>
+
+## Verify your install
+
+```bash
+curl https://api.gml-akhrot.com/v1/health \
+  -H "Authorization: Bearer $AKHROT_API_KEY"
+```
+
+```json
+{ "status": "ok", "region": "us-east", "gml_version": "1.4.2" }
+```
+
+## Optional add-ons
+
+<CardGroup cols={2}>
+  <Card title="Browser Extension" icon="chrome" href="/features/browser-extension">
+    Save and recall memories from ChatGPT, Claude, and Gemini.
+  </Card>
+
+  <Card title="MCP Server" icon="server" href="/integrations/mcp">
+    Use Akhrot in any MCP-enabled client.
+  </Card>
+
+  <Card title="VS Code" icon="code" href="/integrations/vscode">
+    Memory-aware AI in your editor.
+  </Card>
+
+  <Card title="Cursor" icon="arrow-pointer" href="/integrations/cursor">
+    Persistent context across Cursor sessions.
+  </Card>
+</CardGroup>
+
+## Runtime requirements
+
+| Runtime | Minimum |
+| --- | --- |
+| Node.js | 18.x |
+| Python | 3.9 |
+| Edge runtimes | Cloudflare Workers, Vercel Edge, Deno Deploy |

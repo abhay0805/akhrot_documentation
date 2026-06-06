@@ -1,0 +1,80 @@
+---
+title: "Claude"
+description: "Use Akhrot memory with Anthropic Claude models."
+icon: "a"
+---
+
+Akhrot integrates with Claude through the Anthropic SDK. Use it to add persistent memory and cross-model context to any Claude-powered application.
+
+## Install
+
+```bash
+npm install @akhrot/sdk @anthropic-ai/sdk
+```
+
+## Recall \+ generate
+
+```ts
+import Anthropic from "@anthropic-ai/sdk";
+import { Akhrot } from "@akhrot/sdk";
+
+const anthropic = new Anthropic();
+const akhrot = new Akhrot({ apiKey: process.env.AKHROT_API_KEY! });
+
+async function chat(userId: string, message: string) {
+  const slice = await akhrot.orchestrate.route({
+    userId,
+    query: message,
+    targetModel: "claude-3.5-sonnet",
+  });
+
+  const reply = await anthropic.messages.create({
+    model: "claude-3-5-sonnet-latest",
+    max_tokens: 1024,
+    system: slice.system,
+    messages: [{ role: "user", content: message }],
+  });
+
+  await akhrot.memory.ingest({
+    userId,
+    source: "claude-3.5-sonnet",
+    messages: [
+      { role: "user", content: message },
+      { role: "assistant", content: reply.content[0].type === "text" ? reply.content[0].text : "" },
+    ],
+  });
+
+  return reply;
+}
+```
+
+## Claude as the GML extractor
+
+Claude is an excellent fact extractor. Pin it in your project settings, or per-call:
+
+```ts
+await akhrot.memory.ingest({
+  userId,
+  source: "user-input",
+  content,
+  extractor: "claude-3.5-sonnet",
+});
+```
+
+## Tool use
+
+Expose Akhrot to Claude as a tool so it can recall memory itself:
+
+```ts
+const tools = [
+  {
+    name: "recall_memory",
+    description: "Recall facts about the current user.",
+    input_schema: {
+      type: "object",
+      properties: { query: { type: "string" } },
+      required: ["query"],
+    },
+  },
+];
+```

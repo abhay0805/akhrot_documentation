@@ -1,0 +1,102 @@
+---
+title: "First Memory"
+description: "A guided walkthrough of writing, recalling, and inspecting your first memory."
+icon: "seedling"
+---
+
+In this guide you'll write a memory from one model, recall it from another, and inspect how the **GML layer** decided what to extract and store.
+
+## Scenario
+
+A user tells **Claude**: _"I'm allergic to peanuts and I'm vegetarian."_
+
+Later, the user opens a **GPT-4o** session and asks for dinner recipes. Without Akhrot, GPT would have no idea about either constraint.
+
+## Step 1 — Ingest from Claude
+
+<CodeGroup>
+
+```ts TypeScript
+await akhrot.memory.ingest({
+  userId: "user_42",
+  source: "claude-3.5-sonnet",
+  content: "I'm allergic to peanuts and I'm vegetarian.",
+  conversationId: "conv_abc",
+});
+```
+
+```python Python
+akhrot.memory.ingest(
+    user_id="user_42",
+    source="claude-3.5-sonnet",
+    content="I'm allergic to peanuts and I'm vegetarian.",
+    conversation_id="conv_abc",
+)
+```
+
+</CodeGroup>
+
+The GML extractor turns that single sentence into **two durable facts**:
+
+```json
+[
+  { "fact": "User is allergic to peanuts", "type": "health", "confidence": 0.98 },
+  { "fact": "User is vegetarian", "type": "dietary", "confidence": 0.97 }
+]
+```
+
+<Tip>
+  GML stores **extracted facts**, not raw transcripts. This is what makes recall precise and cross-model safe.
+</Tip>
+
+## Step 2 — Recall from GPT-4o
+
+```ts
+const memories = await akhrot.memory.recall({
+  userId: "user_42",
+  query: "Suggest a dinner recipe",
+  model: "gpt-4o",
+  limit: 5,
+});
+```
+
+Result:
+
+```json
+[
+  { "fact": "User is allergic to peanuts", "score": 0.91 },
+  { "fact": "User is vegetarian", "score": 0.88 }
+]
+```
+
+## Step 3 — Inject into the prompt
+
+```ts
+const system = `
+You are a recipe assistant.
+Hard constraints from user memory:
+${memories.map((m) => `- ${m.fact}`).join("\n")}
+`;
+```
+
+## Step 4 — Trace the memory
+
+Every recall is traceable. Inspect _why_ a memory was returned:
+
+```ts
+const trace = await akhrot.trace.get({ recallId: "rcl_..." });
+```
+
+```json
+{
+  "recallId": "rcl_...",
+  "matched": [
+    { "memoryId": "mem_1", "score": 0.91, "reason": "semantic + tag:dietary" }
+  ],
+  "latencyMs": 38
+}
+```
+
+<Check>
+  You wrote memory from Claude, recalled it from GPT, and audited the retrieval. That is the Akhrot loop.
+</Check>

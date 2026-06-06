@@ -1,0 +1,81 @@
+---
+title: "Memory Ingestion"
+description: "Extract durable facts from conversations and model outputs."
+icon: "inbox-in"
+---
+
+Ingestion is how raw text becomes durable memory. You hand Akhrot any conversation, document, or model output — GML extracts atomic facts and persists them.
+
+## Ingest a single message
+
+```ts
+await akhrot.memory.ingest({
+  userId: "user_42",
+  source: "claude-3.5-sonnet",
+  content: "I lead the platform team. We use Kubernetes on GCP and we just migrated from Datadog to Grafana.",
+});
+```
+
+GML produces:
+
+```json
+[
+  { "fact": "User leads the platform team", "type": "role" },
+  { "fact": "Team uses Kubernetes on GCP", "type": "stack" },
+  { "fact": "Team migrated from Datadog to Grafana", "type": "decision" }
+]
+```
+
+## Ingest a conversation
+
+```ts
+await akhrot.memory.ingest({
+  userId: "user_42",
+  conversationId: "conv_abc",
+  messages: [
+    { role: "user", content: "Should we use Postgres or Mongo?" },
+    { role: "assistant", content: "Given relational constraints, Postgres." },
+    { role: "user", content: "Agreed, let's go Postgres." },
+  ],
+});
+```
+
+## Ingestion options
+
+| Option | Description |
+| --- | --- |
+| `tags` | Manual labels to attach to extracted facts |
+| `scope` | Limit visibility (e.g. `user:42`, `team:platform`) |
+| `extractor` | Override the GML extractor model |
+| `redact` | PII redaction policy (`strict`, `default`, `none`) |
+| `dedupe` | Merge with existing similar facts (default `true`) |
+
+## Streaming ingestion
+
+For live agent loops, stream messages and let Akhrot extract incrementally.
+
+```ts
+const stream = akhrot.memory.ingestStream({ userId: "user_42" });
+
+for await (const chunk of modelStream) {
+  stream.write({ role: "assistant", content: chunk });
+}
+
+await stream.close();
+```
+
+## Batch ingestion
+
+```ts
+await akhrot.memory.ingestBatch({
+  items: documents.map((d) => ({
+    userId: d.userId,
+    source: "docs-import",
+    content: d.text,
+  })),
+});
+```
+
+<Warning>
+  Ingestion is asynchronous by default. Use `await akhrot.memory.ingest({ ..., sync: true })` if you need facts queryable immediately.
+</Warning>

@@ -1,0 +1,70 @@
+---
+title: "Ingest"
+description: "POST /memory/ingest — extract durable facts from text or conversations."
+icon: "inbox-in"
+---
+
+## Endpoint
+
+```text
+POST /v1/memory/ingest
+```
+
+## Request body
+
+```json
+{
+  "userId": "user_42",
+  "scope": ["project:billing"],
+  "source": "claude-3.5-sonnet",
+  "content": "We chose Postgres for the billing service.",
+  "messages": null,
+  "tags": ["decision"],
+  "extractor": "claude-3.5-sonnet",
+  "redact": "default",
+  "dedupe": true,
+  "sync": false
+}
+```
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `userId` | string | one of `userId`/`scope` | Owner of the memory |
+| `scope` | string\[\] | one of `userId`/`scope` | Visibility scope(s) |
+| `source` | string | yes | Source identifier (model, system, user) |
+| `content` | string | one of `content`/`messages` | Raw text |
+| `messages` | object\[\] | one of `content`/`messages` | Conversation messages |
+| `tags` | string\[\] | no | Manual tags |
+| `extractor` | string | no | Override the GML extractor model |
+| `redact` | enum | no | `strict` \| `default` \| `none` |
+| `dedupe` | boolean | no | Merge with existing similar facts |
+| `sync` | boolean | no | Wait for facts to be queryable |
+
+## Response
+
+```json
+{
+  "ingestionId": "ing_01HX...",
+  "extracted": [
+    {
+      "id": "mem_01HX...",
+      "fact": "Team chose Postgres for the billing service",
+      "type": "decision",
+      "confidence": 0.94
+    }
+  ]
+}
+```
+
+## cURL
+
+```bash
+curl -X POST https://api.gml-akhrot.com/v1/memory/ingest \
+  -H "Authorization: Bearer $AKHROT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user_42",
+    "source": "claude-3.5-sonnet",
+    "content": "We chose Postgres for the billing service."
+  }'
+```

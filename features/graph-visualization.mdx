@@ -1,0 +1,55 @@
+---
+title: "Graph Visualization"
+description: "Visualize relationships between memories and explore connected knowledge."
+icon: "diagram-project"
+---
+
+The Akhrot dashboard renders your [memory graph](/core-concepts/memory-graph) as an interactive map. You can also pull the graph programmatically and render it in your own UI.
+
+## In the dashboard
+
+- Filter by user, team, project, time range
+- Click a node to see source conversations and provenance
+- Hover an edge to see its type and the facts that imply it
+- Pin nodes, collapse clusters, export to PNG / JSON / GraphML
+
+## Programmatic access
+
+```ts
+const graph = await akhrot.graph.query({
+  userId: "user_42",
+  start: { entity: "billing-service" },
+  traverse: ["DEPENDS_ON", "DECIDED"],
+  depth: 2,
+});
+```
+
+## Render in React
+
+```tsx
+import { MemoryGraph } from "@akhrot/react";
+
+export function Page() {
+  return <MemoryGraph userId="user_42" rootEntity="billing-service" depth={2} />;
+}
+```
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Onboarding" icon="user-plus">
+    Show new teammates a map of decisions and their dependencies.
+  </Card>
+
+  <Card title="Debugging an agent" icon="bug">
+    See which facts the agent's reasoning depended on.
+  </Card>
+
+  <Card title="Knowledge audit" icon="clipboard-check">
+    Identify conflicting or stale facts visually.
+  </Card>
+
+  <Card title="User dashboards" icon="chart-network">
+    Give end-users a map of what your product knows about them.
+  </Card>
+</CardGroup>

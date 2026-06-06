@@ -1,0 +1,83 @@
+---
+title: "Memory"
+description: "Overview of the Memory API surface."
+icon: "database"
+---
+
+The Memory API is the core of Akhrot. It exposes ingest, recall, search, graph, and trace primitives.
+
+## Base URL
+
+```text
+https://api.gml-akhrot.com/v1
+```
+
+## Authentication
+
+All requests require a bearer token:
+
+```text
+Authorization: Bearer ak_live_...
+```
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Ingest" icon="inbox-in" href="/api-reference/ingest">
+    `POST /memory/ingest`
+  </Card>
+
+  <Card title="Recall" icon="magnifying-glass" href="/api-reference/recall">
+    `POST /memory/recall`
+  </Card>
+
+  <Card title="Search" icon="magnifying-glass-plus" href="/api-reference/search">
+    `POST /memory/search`
+  </Card>
+
+  <Card title="Graph" icon="share-nodes" href="/api-reference/graph">
+    `POST /graph/query`
+  </Card>
+
+  <Card title="Trace" icon="binoculars" href="/api-reference/trace">
+    `GET /trace/{recallId}`
+  </Card>
+</CardGroup>
+
+## Memory object
+
+```json
+{
+  "id": "mem_01HX...",
+  "userId": "user_42",
+  "scope": ["project:billing"],
+  "fact": "Team chose Postgres for the billing service",
+  "type": "decision",
+  "source": "claude-3.5-sonnet",
+  "sourceConversationId": "conv_abc",
+  "confidence": 0.94,
+  "tags": ["infra", "decision"],
+  "createdAt": "2026-05-12T14:02:00Z",
+  "supersedes": null,
+  "supersededBy": null
+}
+```
+
+## Errors
+
+| Code | Meaning |
+| --- | --- |
+| `401` | Missing or invalid API key |
+| `403` | Scope or quota denied |
+| `404` | Memory not found |
+| `422` | Validation error |
+| `429` | Rate limited |
+| `5xx` | Server error |
+
+## Rate limits
+
+| Plan | Ingest | Recall |
+| --- | --- | --- |
+| Free | 60 / min | 120 / min |
+| Pro | 600 / min | 1,200 / min |
+| Enterprise | Custom | Custom |

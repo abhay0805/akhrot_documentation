@@ -1,0 +1,70 @@
+---
+title: "Agent Orchestration"
+description: "Route the correct context to the correct model in multi-agent workflows."
+icon: "network-wired"
+---
+
+In multi-agent systems, every handoff is a chance to lose context. Akhrot's orchestration primitives make handoffs lossless.
+
+## The handoff problem
+
+A planner agent decides _"build a billing dashboard with Stripe and Postgres."_ The executor agent receives only the task name. The rationale, alternatives considered, and user constraints are gone.
+
+## Akhrot orchestration
+
+```ts
+await akhrot.orchestrate.handoff({
+  fromAgent: "planner",
+  toAgent: "executor",
+  userId: "user_42",
+  task: "Build billing dashboard",
+  carryFacts: ["decision", "constraint", "preference"],
+});
+```
+
+The `toAgent` automatically receives:
+
+- All relevant **decisions** the planner made
+- All **user constraints** in scope
+- A trace ID for later audit
+
+## Routing context to specific models
+
+```ts
+const slice = await akhrot.orchestrate.route({
+  userId: "user_42",
+  query: "draft the migration plan",
+  targetModel: "claude-3.5-sonnet",
+  budget: { tokens: 2000 },
+});
+
+const response = await anthropic.messages.create({
+  model: "claude-3.5-sonnet",
+  system: slice.system,
+  messages: [...history, { role: "user", content: query }],
+});
+```
+
+## Patterns
+
+<CardGroup cols={2}>
+  <Card title="Planner → Executor" icon="diagram-project">
+    Plan with a reasoning model, execute with a cheaper model.
+  </Card>
+
+  <Card title="Researcher → Writer" icon="pen-fancy">
+    Memory carries findings into the drafting agent.
+  </Card>
+
+  <Card title="Triage → Specialist" icon="user-doctor">
+    Conversation context survives the routing decision.
+  </Card>
+
+  <Card title="Long-running loops" icon="rotate">
+    Each iteration writes new facts; future iterations can recall them.
+  </Card>
+</CardGroup>
+
+## Works with existing orchestrators
+
+Akhrot is the memory layer **beneath** LangGraph, CrewAI, Mastra, AutoGen, and your home-grown loop. You don't switch frameworks. You add memory.

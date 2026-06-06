@@ -1,0 +1,65 @@
+---
+title: "Graph"
+description: "POST /graph/query — traverse the memory graph."
+icon: "share-nodes"
+---
+
+## Endpoint
+
+```text
+POST /v1/graph/query
+```
+
+## Request body
+
+```json
+{
+  "userId": "user_42",
+  "scope": ["project:billing"],
+  "start": { "entity": "billing-service" },
+  "traverse": ["DEPENDS_ON", "DECIDED", "SUPERSEDES"],
+  "depth": 2,
+  "limit": 200
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `start` | Seed node — `{ entity }`, `{ memoryId }`, or `{ tag }` |
+| `traverse` | Edge types to follow |
+| `depth` | Max hops |
+| `limit` | Max nodes returned |
+
+## Response
+
+```json
+{
+  "nodes": [
+    { "id": "e:billing-service", "type": "Entity", "label": "billing-service" },
+    { "id": "mem_01HX...", "type": "Decision", "fact": "Use Postgres for billing" }
+  ],
+  "edges": [
+    { "from": "mem_01HX...", "to": "e:billing-service", "type": "DEPENDS_ON" }
+  ]
+}
+```
+
+## Common queries
+
+<CardGroup cols={2}>
+  <Card title="Decision lineage" icon="timeline">
+    Traverse `SUPERSEDES` from a decision to see its history.
+  </Card>
+
+  <Card title="Impact analysis" icon="explosion">
+    Traverse `DEPENDS_ON` outward from an entity to see what would break.
+  </Card>
+
+  <Card title="Conflict detection" icon="triangle-exclamation">
+    Traverse `CONFLICTS_WITH` across a scope.
+  </Card>
+
+  <Card title="Onboarding map" icon="map">
+    Traverse all edges with depth 1 from a team scope.
+  </Card>
+</CardGroup>

@@ -1,0 +1,61 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about GML Akhrot."
+icon: "circle-question"
+---
+
+## What is Akhrot in one sentence?
+
+A shared memory and context layer for multi-LLM systems — so context survives the model.
+
+## Is Akhrot an agent framework?
+
+No. Akhrot is the memory layer **beneath** frameworks like LangGraph, CrewAI, Mastra, and AutoGen. Use it alongside your existing orchestrator.
+
+## How is Akhrot different from a vector database?
+
+Vector databases store **chunks** of text. Akhrot stores **atomic facts** with structure, provenance, supersession, and a typed graph. Vector search is one of the indexes Akhrot uses internally — not the whole product. See [Memory vs RAG](/core-concepts/memory-vs-rag).
+
+## Which models are supported?
+
+GPT (OpenAI), Claude (Anthropic), Gemini (Google), Grok (xAI), Mistral, Llama, and any OpenAI-compatible endpoint. The [GML layer](/core-concepts/gml-architecture) abstracts the model surface.
+
+## What does "GML" stand for?
+
+**Gigizs Multi-LLM Layer** — the engine beneath Akhrot that handles model abstraction, fact extraction, embedding, reranking, and context shaping.
+
+## Can I self-host?
+
+Yes. Akhrot ships a self-hosted distribution for Enterprise customers, including the GML layer and storage components.
+
+## How is data scoped?
+
+Memories are scoped by `user:<id>`, `team:<slug>`, `project:<slug>`, or custom scopes. Recall enforces scope filtering server-side.
+
+## How is PII handled?
+
+Ingestion supports `redact: strict | default | none`. The strict mode runs PII detection on input and stores redacted facts. Enterprise plans add KMS-backed encryption and BYO-key.
+
+## What happens when facts change?
+
+Akhrot uses **supersession**, not deletion. Old facts remain queryable with `superseded_by` links. You can always answer _"what did we believe and when?"_
+
+## Does Akhrot replace my prompt history?
+
+No. Keep your chat transcript wherever you keep it today. Akhrot stores the **extracted durable facts** — a much smaller, more useful surface for prompting and search.
+
+## What's the pricing model?
+
+Usage-based on ingest tokens and recall calls. See [pricing](https://gml-akhrot.com/pricing).
+
+## How do I delete a user's memory?
+
+```ts
+await akhrot.memory.deleteAll({ userId: "user_42" });
+```
+
+This honors GDPR / CCPA right-to-erasure requirements and is logged for audit.
+
+## Where do I file issues?
+
+[github.com/gml-akhrot](https://github.com/gml-akhrot) — or email `support@gml-akhrot.com`.

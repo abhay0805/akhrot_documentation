@@ -1,0 +1,77 @@
+---
+title: "How Akhrot Works"
+description: "The Akhrot pipeline: ingest, extract, store, recall, orchestrate."
+icon: "diagram-project"
+---
+
+Akhrot is a five-stage pipeline. Each stage is independently observable and replaceable.
+
+## The pipeline
+
+```text
+   raw events                durable memory               grounded prompt
+  ┌──────────┐   ┌────────┐   ┌────────┐   ┌────────┐   ┌────────────┐
+  │  Ingest   │─▶│Extract │─▶│ Store  │─▶│ Recall │─▶│Orchestrate │
+  └──────────┘   └────────┘   └────────┘   └────────┘   └────────────┘
+     events     GML facts    memory graph    matches    prompt slices
+```
+
+## 1. Ingest
+
+You send conversations, tool outputs, documents, or arbitrary text into Akhrot.
+
+```ts
+await akhrot.memory.ingest({
+  userId: "user_42",
+  source: "claude-3.5",
+  content: "The team decided to use Postgres over MongoDB for the user service.",
+});
+```
+
+## 2. Extract (GML)
+
+The GML layer runs a multi-pass extractor that pulls out:
+
+- **Atomic facts** ("Team chose Postgres for the user service")
+- **Entities** (Postgres, user service, team)
+- **Relationships** (team —DECIDED→ Postgres, Postgres —USED\_BY→ user service)
+- **Decision metadata** (rationale, alternatives considered, timestamp)
+
+## 3. Store
+
+Facts land in three indexes simultaneously:
+
+| Index | Purpose |
+| --- | --- |
+| Vector | Semantic recall |
+| Structured (KV \+ tags) | Filter by user, scope, type |
+| Graph | Traverse relationships |
+
+## 4. Recall
+
+```ts
+const memories = await akhrot.memory.recall({
+  userId: "user_42",
+  query: "What database are we using?",
+  scope: ["project:user-service"],
+});
+```
+
+Recall combines vector similarity, graph proximity, recency, and explicit tag filters.
+
+## 5. Orchestrate
+
+When multiple models or agents are involved, Akhrot routes a **model-specific slice** of memory — sized to the target model's context budget and shaped for its strengths.
+
+```ts
+const slice = await akhrot.orchestrate.route({
+  userId: "user_42",
+  query,
+  targetModel: "gpt-4o-mini",
+  maxTokens: 1500,
+});
+```
+
+<Tip>
+  Orchestration is what makes Akhrot a _layer_, not just a store. See [Agent Orchestration](/features/agent-orchestration).
+</Tip>

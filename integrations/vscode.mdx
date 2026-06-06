@@ -1,0 +1,35 @@
+---
+title: "VS Code"
+description: "Memory-aware AI inside Visual Studio Code."
+icon: "code"
+---
+
+The Akhrot VS Code extension brings shared memory into Copilot Chat, Continue, and any MCP-enabled chat panel.
+
+## Install
+
+Search for **Akhrot** in the VS Code marketplace, or:
+
+```bash
+code --install-extension gml-akhrot.akhrot
+```
+
+## Sign in
+
+Run the **Akhrot: Sign In** command from the command palette and paste your API key, or sign in via browser.
+
+## What it does
+
+- **Project-scoped memory** — each workspace maps to an Akhrot scope automatically.
+- **Code-aware ingest** — saves decisions from comments tagged `// @akhrot: ...`.
+- **Inline recall** — hover any function to see relevant memory.
+- **Copilot Chat integration** — `@akhrot recall ...` and `@akhrot save ...` in chat.
+
+## Example
+
+```ts
+// @akhrot: We chose Drizzle over Prisma because of edge runtime support.
+import { drizzle } from "drizzle-orm";
+```
+
+The decision and rationale are now durable memory — recallable from any model, any tool, any teammate.

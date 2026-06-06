@@ -1,0 +1,73 @@
+---
+title: "GML Architecture"
+description: "The Gigizs Multi-LLM Layer that powers Akhrot."
+icon: "layer-group"
+---
+
+**GML — the Gigizs Multi-LLM Layer —** is the engine beneath Akhrot. It is the part that makes memory model-agnostic.
+
+## What GML does
+
+GML is responsible for:
+
+1. **Model abstraction** — a uniform interface over GPT, Claude, Gemini, Grok, Mistral, Llama, and others.
+2. **Fact extraction** — turning conversations into atomic, typed facts.
+3. **Embedding strategy** — choosing the right embedding family per use case.
+4. **Context shaping** — sizing and formatting memory for the target model.
+5. **Routing** — selecting the right model for a sub-task (extract vs recall vs rerank).
+
+## Layers
+
+```text
+   ┌───────────────────────────────────────┐
+   │             Your application                 │
+   ├───────────────────────────────────────┤
+   │           Akhrot SDK / REST / MCP            │
+   ├───────────────────────────────────────┤
+   │  GML — Gigizs Multi-LLM Layer                │
+   │   • model registry & router                  │
+   │   • extractor                                │
+   │   • embedder                                 │
+   │   • reranker                                 │
+   │   • context shaper                           │
+   ├───────────────────────────────────────┤
+   │  Storage: vector + structured + graph        │
+   └───────────────────────────────────────┘
+```
+
+## Model registry
+
+GML maintains a registry of model capabilities. You can pin or let GML choose.
+
+```ts
+await akhrot.memory.recall({
+  userId: "user_42",
+  query: "summarize prefs",
+  gml: {
+    extractor: "claude-3.5-sonnet",
+    embedder: "text-embedding-3-large",
+    reranker: "cohere-rerank-3",
+    targetModel: "gpt-4o",
+  },
+});
+```
+
+## Why a dedicated layer
+
+<CardGroup cols={2}>
+  <Card title="Provider independence" icon="unlock">
+    Switch providers without rewriting your memory pipeline.
+  </Card>
+
+  <Card title="Best-tool-per-job" icon="screwdriver-wrench">
+    Use Claude for extraction, OpenAI embeddings for recall, Gemini for the final answer.
+  </Card>
+
+  <Card title="Cost control" icon="coins">
+    Route cheap models to high-volume sub-tasks; reserve premium models for high-value ones.
+  </Card>
+
+  <Card title="Safety" icon="shield">
+    Central place to enforce PII redaction, scope filtering, and content policy.
+  </Card>
+</CardGroup>

@@ -1,0 +1,55 @@
+---
+title: "Memory vs RAG"
+description: "How Akhrot differs from traditional retrieval-augmented generation."
+icon: "code-compare"
+---
+
+RAG and memory are often confused. They solve overlapping but distinct problems.
+
+## The short version
+
+|  | RAG | Akhrot Memory |
+| --- | --- | --- |
+| **Unit** | Document chunks | Atomic facts |
+| **Source** | Static corpus | Live model interactions |
+| **Freshness** | Indexed periodically | Updated on every conversation |
+| **Provenance** | Document URL | Source model \+ conversation \+ extraction confidence |
+| **Lifecycle** | Reindex | Supersession |
+| **Scope** | Global corpus | Per-user / per-team / per-agent |
+| **Output** | Raw text | Typed, structured facts |
+
+## When to use RAG
+
+- You have a static knowledge base (docs, contracts, manuals).
+- You need to ground generations in **authoritative source material**.
+- The content rarely changes.
+
+## When to use Akhrot
+
+- You need to remember **what users and agents said and decided**.
+- Knowledge changes constantly and must supersede gracefully.
+- You need **cross-model**, **cross-session** continuity.
+- You need provenance scoped to a user, team, or agent.
+
+## Use them together
+
+They are complements, not alternatives:
+
+```ts
+const [memories, ragChunks] = await Promise.all([
+  akhrot.memory.recall({ userId, query }),
+  ragClient.search(query),
+]);
+
+const system = `
+User memory:
+${memories.map((m) => `- ${m.fact}`).join("\n")}
+
+Reference docs:
+${ragChunks.map((c) => c.text).join("\n---\n")}
+`;
+```
+
+<Tip>
+  A good mental model: **RAG gives the model the textbook. Akhrot gives it the conversation history with the student.**
+</Tip>

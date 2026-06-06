@@ -1,0 +1,58 @@
+---
+title: "Context Fidelity"
+description: "How faithfully a system preserves meaning across time, models, and handoffs."
+icon: "check-double"
+---
+
+**Context fidelity** is the property that distinguishes Akhrot from naive summarization and from raw vector retrieval. It is the measure of how faithfully a system preserves the _meaning_ of prior interactions.
+
+## Fidelity failure modes
+
+<CardGroup cols={2}>
+  <Card title="Summarization drift" icon="wind">
+    A summarizer compresses "vegetarian and allergic to peanuts" to "has dietary preferences." The constraint is lost.
+  </Card>
+
+  <Card title="Chunk misalignment" icon="puzzle-piece">
+    Vector DBs return a chunk that mentions "peanuts" but in the wrong context ("my neighbor's dog").
+  </Card>
+
+  <Card title="Stale facts" icon="clock-rotate-left">
+    The user changed their mind weeks ago; the system still cites the old preference.
+  </Card>
+
+  <Card title="Source ambiguity" icon="circle-question">
+    A model hallucinated a "fact"; it was stored and is now retrieved as truth.
+  </Card>
+</CardGroup>
+
+## How Akhrot preserves fidelity
+
+### 1. Atomic facts, not chunks
+
+The GML extractor produces **single-claim facts**. Each fact stands alone and is independently verifiable.
+
+```json
+{ "fact": "User is allergic to peanuts", "type": "health", "source": "claude-3.5", "confidence": 0.98 }
+```
+
+### 2. Provenance on every memory
+
+Every memory carries: source model, conversation, timestamp, extraction confidence, and supersession links.
+
+### 3. Supersession, not deletion
+
+When a fact is updated, the old one is marked `superseded_by` rather than deleted. You can always answer _"what did we believe and when?"_
+
+```json
+{ "id": "mem_1", "fact": "User prefers React", "superseded_by": "mem_2" }
+{ "id": "mem_2", "fact": "User prefers Svelte", "supersedes": "mem_1" }
+```
+
+### 4. Verifiable recall
+
+Every recall returns a [trace](/api-reference/trace). You can audit why a fact was returned and inspect the score components.
+
+<Check>
+  High context fidelity is the difference between an assistant that _seems_ to remember and one that actually does.
+</Check>

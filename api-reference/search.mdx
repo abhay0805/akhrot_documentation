@@ -1,0 +1,56 @@
+---
+title: "Search"
+description: "POST /memory/search — raw semantic and hybrid search."
+icon: "magnifying-glass-plus"
+---
+
+## Endpoint
+
+```text
+POST /v1/memory/search
+```
+
+## Request body
+
+```json
+{
+  "userId": "user_42",
+  "scope": ["project:billing"],
+  "query": "database migration",
+  "keywords": ["postgres", "mongo"],
+  "embedder": "text-embedding-3-large",
+  "rerank": "cohere-rerank-3",
+  "topK": 20,
+  "filters": {
+    "tags": { "all": ["decision"] }
+  }
+}
+```
+
+## Response
+
+```json
+{
+  "hits": [
+    {
+      "memoryId": "mem_01HX...",
+      "fact": "Migrated billing service from Mongo to Postgres",
+      "score": 0.88,
+      "rerankScore": 0.93
+    }
+  ]
+}
+```
+
+## Differences from `recall`
+
+|  | `search` | `recall` |
+| --- | --- | --- |
+| Output | Raw hits | Model-ready slice |
+| Reranks | Optional | Always |
+| Context shaping | No | Yes |
+| Trace ID | No | Yes (`recallId`) |
+
+<Tip>
+  Use `search` when you want to build your own UI over memory. Use `recall` when you want to ground a model.
+</Tip>

@@ -1,0 +1,76 @@
+---
+title: "Persistent Chatbot"
+description: "A consumer chatbot that remembers every user across sessions and models."
+icon: "comment-dots"
+---
+
+A chatbot without memory is a stranger at every visit. Adding Akhrot turns it into a returning friend.
+
+## Goal
+
+- Per-user memory scoped to `user:<id>`
+- Auto-ingest on every assistant reply
+- Auto-recall on every user message
+- Works with whichever model is cheapest today
+
+## Wire it up
+
+```ts
+import OpenAI from "openai";
+import { Akhrot } from "@akhrot/sdk";
+
+const openai = new OpenAI();
+const akhrot = new Akhrot({ apiKey: process.env.AKHROT_API_KEY! });
+
+export async function reply(userId: string, message: string) {
+  const slice = await akhrot.orchestrate.route({
+    userId,
+    query: message,
+    targetModel: "gpt-4o-mini",
+    maxTokens: 800,
+  });
+
+  const res = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "system", content: slice.system },
+      { role: "user", content: message },
+    ],
+  });
+
+  const text = res.choices[0].message.content ?? "";
+
+  await akhrot.memory.ingest({
+    userId,
+    source: "gpt-4o-mini",
+    messages: [
+      { role: "user", content: message },
+      { role: "assistant", content: text },
+    ],
+  });
+
+  return text;
+}
+```
+
+## What the user experiences
+
+- Day 1: _"I'm vegetarian and I live in Berlin."_
+- Day 47: _"Suggest a weekend trip."_ → The bot proposes a vegetarian-friendly itinerary near Berlin without being told again.
+
+## Privacy controls
+
+```ts
+// Let users see what's stored
+const memories = await akhrot.memory.list({ userId, limit: 100 });
+
+// Let users forget
+await akhrot.memory.delete({ userId, memoryId: "mem_123" });
+
+// Or wipe everything
+await akhrot.memory.deleteAll({ userId });
+```
+
+<Warning>
+  Give end-users visibility and control over their memory. It is good product and — in many jurisdictions — required.
+</Warning>

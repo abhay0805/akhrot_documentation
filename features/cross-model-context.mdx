@@ -1,0 +1,63 @@
+---
+title: "Cross-Model Context"
+description: "Memory written by one model is instantly usable by any other."
+icon: "shuffle"
+---
+
+Cross-model context is the headline feature: **what one model learns, all models can use.**
+
+## How it works
+
+Because Akhrot stores **atomic facts** rather than model-specific transcripts or embeddings:
+
+- Facts are model-agnostic.
+- Embeddings can be re-computed per embedder.
+- Context is shaped per target model's window and prompt style.
+
+## Example
+
+<Steps>
+  <Step title="Claude learns the user's stack">
+    ```ts
+    await akhrot.memory.ingest({
+      userId: "user_42",
+      source: "claude-3.5-sonnet",
+      content: "I'm building with Next.js 15, Drizzle, and Neon.",
+    });
+    ```
+  </Step>
+  <Step title="GPT-4o asks an unrelated question">
+    ```ts
+    const memories = await akhrot.memory.recall({
+      userId: "user_42",
+      query: "set up auth",
+      targetModel: "gpt-4o",
+    });
+    ```
+
+    Returns the Drizzle/Neon facts — enabling GPT to suggest auth integrations specific to that stack.
+  </Step>
+  <Step title="Gemini follows up days later">
+    The same facts are still there. Gemini can answer with no prior context provided in the prompt.
+  </Step>
+</Steps>
+
+## Why this matters
+
+<CardGroup cols={2}>
+  <Card title="Provider risk" icon="umbrella">
+    Provider outages, price changes, or model deprecations no longer threaten your product memory.
+  </Card>
+
+  <Card title="Best-of-breed" icon="trophy">
+    Use the right model for each step — without losing what was learned in earlier steps.
+  </Card>
+
+  <Card title="Migration" icon="truck">
+    Swap GPT-4 for Claude 5 next year. Memory carries over.
+  </Card>
+
+  <Card title="User trust" icon="handshake">
+    Users never have to re-explain themselves — even if you rebuild the product.
+  </Card>
+</CardGroup>

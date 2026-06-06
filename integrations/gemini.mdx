@@ -1,0 +1,60 @@
+---
+title: "Gemini"
+description: "Use Akhrot memory with Google Gemini models."
+icon: "google"
+---
+
+Akhrot integrates with Gemini via the Google Generative AI SDK.
+
+## Install
+
+```bash
+npm install @akhrot/sdk @google/generative-ai
+```
+
+## Recall \+ generate
+
+```ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Akhrot } from "@akhrot/sdk";
+
+const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const akhrot = new Akhrot({ apiKey: process.env.AKHROT_API_KEY! });
+
+async function chat(userId: string, input: string) {
+  const slice = await akhrot.orchestrate.route({
+    userId,
+    query: input,
+    targetModel: "gemini-1.5-pro",
+  });
+
+  const model = genai.getGenerativeModel({
+    model: "gemini-1.5-pro",
+    systemInstruction: slice.system,
+  });
+
+  const result = await model.generateContent(input);
+  const text = result.response.text();
+
+  await akhrot.memory.ingest({
+    userId,
+    source: "gemini-1.5-pro",
+    messages: [
+      { role: "user", content: input },
+      { role: "assistant", content: text },
+    ],
+  });
+
+  return text;
+}
+```
+
+## Long-context Gemini \+ Akhrot
+
+Gemini's million-token windows do not eliminate the need for memory. They still:
+
+- Reset between sessions
+- Cannot be shared with other model providers
+- Pay full token cost on every call
+
+Use Akhrot to keep memory **durable, portable, and cheap to recall**.

@@ -1,0 +1,98 @@
+---
+title: "Build a Coding Agent"
+description: "A multi-model coding agent that remembers project decisions, style, and constraints."
+icon: "code-merge"
+---
+
+In this recipe you'll build a coding agent that:
+
+- Uses **Claude** for planning
+- Uses **GPT-4o** for code generation
+- Stores decisions and preferences in **Akhrot**
+- Carries context across sessions and model switches
+
+## Setup
+
+```bash
+npm install @akhrot/sdk @anthropic-ai/sdk openai
+```
+
+```ts
+import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
+import { Akhrot } from "@akhrot/sdk";
+
+const akhrot = new Akhrot({ apiKey: process.env.AKHROT_API_KEY! });
+const anthropic = new Anthropic();
+const openai = new OpenAI();
+```
+
+## Planner (Claude)
+
+```ts
+async function plan(userId: string, task: string) {
+  const slice = await akhrot.orchestrate.route({
+    userId,
+    query: task,
+    targetModel: "claude-3.5-sonnet",
+    scope: ["project:billing"],
+  });
+
+  const res = await anthropic.messages.create({
+    model: "claude-3-5-sonnet-latest",
+    max_tokens: 1500,
+    system: `${slice.system}\nYou are a senior architect. Produce a numbered plan.`,
+    messages: [{ role: "user", content: task }],
+  });
+
+  const plan = res.content[0].type === "text" ? res.content[0].text : "";
+
+  await akhrot.memory.ingest({
+    userId,
+    source: "planner:claude",
+    scope: ["project:billing"],
+    content: plan,
+    tags: ["plan"],
+  });
+
+  return plan;
+}
+```
+
+## Executor (GPT-4o)
+
+```ts
+async function execute(userId: string, step: string) {
+  const slice = await akhrot.orchestrate.route({
+    userId,
+    query: step,
+    targetModel: "gpt-4o",
+    scope: ["project:billing"],
+    carryFacts: ["plan", "decision", "preference"],
+  });
+
+  const res = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      { role: "system", content: slice.system },
+      { role: "user", content: step },
+    ],
+  });
+
+  return res.choices[0].message.content;
+}
+```
+
+## Loop
+
+```ts
+const plan = await plan("user_42", "Add Stripe webhook for refunds");
+for (const step of plan.split("\n")) {
+  const code = await execute("user_42", step);
+  console.log(code);
+}
+```
+
+<Check>
+  New sessions inherit the _plan_ and _decisions_ automatically — no prompt scaffolding required.
+</Check>

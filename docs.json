@@ -1,0 +1,144 @@
+{
+  "theme": "mint",
+  "name": "GML Akhrot",
+  "colors": {
+    "primary": "#7C3AED",
+    "light": "#A78BFA",
+    "dark": "#5B21B6"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "navbar": {
+    "links": [
+      {
+        "href": "https://github.com/gml-akhrot",
+        "label": "GitHub"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "/getting-started/quickstart"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/gmlakhrot",
+      "github": "https://github.com/gml-akhrot",
+      "linkedin": "https://linkedin.com/company/gml-akhrot"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ],
+    "display": "header"
+  },
+  "description": "Context that survives the model. Shared memory and context layer for multi-LLM systems.",
+  "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "icon": "book-open-cover",
+          "href": "https://docs.gml-akhrot.com"
+        },
+        {
+          "anchor": "Blog",
+          "icon": "newspaper",
+          "href": "https://gml-akhrot.com/blog"
+        }
+      ]
+    },
+    "groups": [
+      {
+        "group": "Getting Started",
+        "icon": "rocket",
+        "pages": [
+          "getting-started/introduction.mdx",
+          "getting-started/quickstart.mdx",
+          "getting-started/installation.mdx",
+          "getting-started/first-memory.mdx"
+        ]
+      },
+      {
+        "group": "Core Concepts",
+        "icon": "book",
+        "pages": [
+          "core-concepts/what-is-akhrot.mdx",
+          "core-concepts/why-memory-matters.mdx",
+          "core-concepts/how-akhrot-works.mdx",
+          "core-concepts/context-fidelity.mdx",
+          "core-concepts/memory-graph.mdx",
+          "core-concepts/gml-architecture.mdx",
+          "core-concepts/memory-vs-rag.mdx"
+        ]
+      },
+      {
+        "group": "Features",
+        "icon": "sparkles",
+        "pages": [
+          "features/memory-ingestion.mdx",
+          "features/memory-recall.mdx",
+          "features/agent-orchestration.mdx",
+          "features/browser-extension.mdx",
+          "features/semantic-search.mdx",
+          "features/cross-model-context.mdx",
+          "features/graph-visualization.mdx"
+        ]
+      },
+      {
+        "group": "Integrations",
+        "icon": "plug",
+        "pages": [
+          "integrations/claude.mdx",
+          "integrations/chatgpt.mdx",
+          "integrations/gemini.mdx",
+          "integrations/grok.mdx",
+          "integrations/mcp.mdx",
+          "integrations/vscode.mdx",
+          "integrations/cursor.mdx"
+        ]
+      },
+      {
+        "group": "Cookbook",
+        "icon": "flask",
+        "pages": [
+          "cookbook/coding-agent.mdx",
+          "cookbook/research-agent.mdx",
+          "cookbook/persistent-chatbot.mdx",
+          "cookbook/team-knowledge-base.mdx"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "icon": "code",
+        "pages": [
+          "api-reference/memory.mdx",
+          "api-reference/ingest.mdx",
+          "api-reference/recall.mdx",
+          "api-reference/search.mdx",
+          "api-reference/graph.mdx",
+          "api-reference/trace.mdx"
+        ]
+      },
+      {
+        "group": "Resources",
+        "icon": "circle-question",
+        "pages": [
+          "faq.mdx"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+---
+title: "ChatGPT"
+description: "Use Akhrot memory with OpenAI GPT models."
+icon: "comments"
+---
+
+Akhrot integrates with OpenAI's GPT family via the OpenAI SDK and the Responses API.
+
+## Install
+
+```bash
+npm install @akhrot/sdk openai
+```
+
+## Recall \+ generate
+
+```ts
+import OpenAI from "openai";
+import { Akhrot } from "@akhrot/sdk";
+
+const openai = new OpenAI();
+const akhrot = new Akhrot({ apiKey: process.env.AKHROT_API_KEY! });
+
+async function chat(userId: string, input: string) {
+  const slice = await akhrot.orchestrate.route({
+    userId,
+    query: input,
+    targetModel: "gpt-4o",
+  });
+
+  const res = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      { role: "system", content: slice.system },
+      { role: "user", content: input },
+    ],
+  });
+
+  await akhrot.memory.ingest({
+    userId,
+    source: "gpt-4o",
+    messages: [
+      { role: "user", content: input },
+      { role: "assistant", content: res.choices[0].message.content ?? "" },
+    ],
+  });
+
+  return res;
+}
+```
+
+## Function calling
+
+Give GPT direct access to Akhrot:
+
+```ts
+const tools = [
+  {
+    type: "function" as const,
+    function: {
+      name: "recall_memory",
+      description: "Recall durable facts about the user.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" } },
+        required: ["query"],
+      },
+    },
+  },
+];
+```
+
+## Streaming
+
+Akhrot's ingest accepts streaming assistants:
+
+```ts
+const stream = akhrot.memory.ingestStream({ userId });
+
+const completion = await openai.chat.completions.create({
+  model: "gpt-4o",
+  stream: true,
+  messages: [...],
+});
+
+for await (const part of completion) {
+  const delta = part.choices[0].delta.content ?? "";
+  stream.write({ role: "assistant", content: delta });
+}
+await stream.close();
+```

@@ -1,0 +1,48 @@
+---
+title: "Why Memory Matters"
+description: "Without memory, every LLM session starts from zero. That is expensive, fragile, and a ceiling on capability."
+icon: "brain"
+---
+
+Memory is the difference between a clever autocomplete and a system that _understands_ a user, a project, or a domain over time.
+
+## The cost of forgetting
+
+<CardGroup cols={2}>
+  <Card title="Token waste" icon="coins">
+    Re-sending history into the context window every request. At scale this is a real line item.
+  </Card>
+
+  <Card title="Lossy summarization" icon="compress">
+    When history exceeds context, naive summarization destroys nuance and facts.
+  </Card>
+
+  <Card title="Broken handoffs" icon="shuffle">
+    Multi-agent systems lose state at every step. The planner's intent never reaches the executor.
+  </Card>
+
+  <Card title="Cold starts" icon="snowflake">
+    Every new session forces the user to re-establish who they are, what they want, and what was decided.
+  </Card>
+</CardGroup>
+
+## What good memory enables
+
+- **Personalization** — preferences and constraints persist forever.
+- **Compounding intelligence** — your assistant gets smarter the more it is used.
+- **Cross-model portability** — swap GPT-4 for Claude 4 tomorrow without losing what your system already knows.
+- **Auditability** — every decision is traceable to the facts that informed it.
+
+## The shape of useful memory
+
+Good memory is:
+
+1. **Durable** — it outlives sessions, model versions, and provider switches.
+2. **Structured** — facts have types, sources, confidence, and timestamps.
+3. **Queryable** — semantically and structurally.
+4. **Verifiable** — every recall is traceable to a source.
+5. **Scoped** — user, team, org, project, agent.
+
+<Note>
+  Akhrot is designed around all five properties. See [Context Fidelity](/core-concepts/context-fidelity) for why this matters at scale.
+</Note>

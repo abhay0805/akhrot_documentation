@@ -1,0 +1,68 @@
+---
+title: "Team Knowledge Base"
+description: "Capture team decisions, rationale, and tribal knowledge — queryable by any agent."
+icon: "users"
+---
+
+This recipe turns Akhrot into a living knowledge base for an engineering team.
+
+## Scope model
+
+```text
+team:<team-slug>            ← shared team memory
+team:<team-slug>:public     ← visible to org
+project:<project-slug>      ← per-project
+user:<id>                   ← individual preferences
+```
+
+## Capture from Slack
+
+Forward Slack threads tagged with `:akhrot:` to your bot, which ingests them:
+
+```ts
+app.event("reaction_added", async ({ event, client }) => {
+  if (event.reaction !== "akhrot") return;
+  const thread = await client.conversations.replies({ channel, ts: event.item.ts });
+  await akhrot.memory.ingest({
+    scope: [`team:${teamSlug}`],
+    source: "slack",
+    messages: thread.messages!.map((m) => ({
+      role: "user",
+      content: m.text ?? "",
+      author: m.user,
+    })),
+  });
+});
+```
+
+## Capture from PRs
+
+A GitHub Action ingests PR descriptions and review decisions:
+
+```yaml
+- name: Ingest PR to Akhrot
+  run: |
+    npx @akhrot/cli ingest \
+      --scope "project:${{ github.event.repository.name }}" \
+      --source github \
+      --content "${{ github.event.pull_request.body }}"
+```
+
+## Query from any agent
+
+```ts
+const answers = await akhrot.memory.recall({
+  scope: ["team:platform", "project:billing"],
+  query: "Why did we choose Drizzle over Prisma?",
+});
+```
+
+## Audit and govern
+
+- Use [trace](/api-reference/trace) to audit which facts grounded which answer.
+- Use supersession to keep an honest history of changed decisions.
+- Use the [graph](/features/graph-visualization) to onboard new teammates visually.
+
+<Check>
+  This is what "institutional memory" looks like when it's queryable by humans _and_ by models.
+</Check>

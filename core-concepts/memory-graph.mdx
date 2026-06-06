@@ -1,0 +1,64 @@
+---
+title: "Memory Graph"
+description: "A typed, queryable graph of entities, facts, and relationships."
+icon: "share-nodes"
+---
+
+Under the hood, Akhrot stores memory as a **typed graph**. Each fact becomes a node; entities and relationships become edges.
+
+## Why a graph?
+
+Flat lists of facts cannot answer questions like _"What decisions did we make about the billing service that depend on Postgres?"_ A graph can.
+
+## Node types
+
+| Node | Description |
+| --- | --- |
+| `Fact` | An atomic, durable claim |
+| `Entity` | A person, project, system, concept |
+| `Decision` | A fact with rationale and alternatives |
+| `Preference` | A user/team preference |
+| `Event` | A timestamped occurrence |
+
+## Edge types
+
+| Edge | Example |
+| --- | --- |
+| `MENTIONS` | Fact → Entity |
+| `DECIDED` | Team → Decision |
+| `SUPERSEDES` | Fact → Fact |
+| `DEPENDS_ON` | Decision → Decision |
+| `CONFLICTS_WITH` | Fact → Fact |
+
+## Example
+
+```ts
+const graph = await akhrot.graph.query({
+  userId: "user_42",
+  start: { entity: "billing-service" },
+  traverse: ["DEPENDS_ON", "DECIDED"],
+  depth: 2,
+});
+```
+
+The response includes nodes, edges, and the path between them — ready to render or to feed into a model.
+
+```json
+{
+  "nodes": [
+    { "id": "e:billing-service", "type": "Entity" },
+    { "id": "d:postgres-choice", "type": "Decision", "fact": "Use Postgres" }
+  ],
+  "edges": [
+    { "from": "d:postgres-choice", "to": "e:billing-service", "type": "DEPENDS_ON" }
+  ]
+}
+```
+
+## Visualizing
+
+The Akhrot dashboard renders the graph interactively. See [Graph Visualization](/features/graph-visualization).
+
+<Note>
+  The graph is **derived**, not authoritative. The source of truth is the fact table; the graph is rebuilt on ingest and on demand.
+</Note>

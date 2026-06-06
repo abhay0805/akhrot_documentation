@@ -1,0 +1,58 @@
+---
+title: "Build a Research Agent"
+description: "A long-running research assistant that compounds knowledge over weeks."
+icon: "flask"
+---
+
+This recipe builds a research agent that browses, reads, and **remembers** — so the second week of research builds on the first.
+
+## Architecture
+
+```text
+  user query ─▶ planner (Claude) ─▶ searcher ─▶ reader ─▶ synthesizer
+                       │                                       │
+                       └────────────── Akhrot ─────────────────┘
+```
+
+## Capture sources, claims, and confidence
+
+```ts
+await akhrot.memory.ingest({
+  userId: "user_42",
+  scope: ["research:llm-mem-papers"],
+  source: "reader:gpt-4o",
+  content: extractedClaim,
+  metadata: { url, citation, confidence: 0.78 },
+  tags: ["claim"],
+});
+```
+
+## Recall related claims before synthesizing
+
+```ts
+const priorClaims = await akhrot.memory.recall({
+  userId: "user_42",
+  query: "long-term memory in transformer agents",
+  scope: ["research:llm-mem-papers"],
+  filters: { tags: { all: ["claim"] } },
+  limit: 50,
+});
+```
+
+## Detect conflicts via the graph
+
+```ts
+const conflicts = await akhrot.graph.query({
+  userId: "user_42",
+  traverse: ["CONFLICTS_WITH"],
+  scope: ["research:llm-mem-papers"],
+});
+```
+
+<Tip>
+  Because Akhrot tracks **supersession**, you can answer _"what did the literature claim in March vs in June?"_ directly.
+</Tip>
+
+## Output
+
+A briefing that cites sources, flags conflicts, and is generated from facts that **survive across weeks of research and across the models that did the reading**.

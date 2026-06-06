@@ -1,0 +1,70 @@
+---
+title: "Trace"
+description: "GET /trace/{recallId} — audit how a recall was produced."
+icon: "binoculars"
+---
+
+Every `recall` produces a `recallId`. The trace endpoint lets you audit, debug, or evaluate that recall after the fact.
+
+## Endpoint
+
+```text
+GET /v1/trace/{recallId}
+```
+
+## Response
+
+```json
+{
+  "recallId": "rcl_01HX...",
+  "createdAt": "2026-06-06T11:14:00Z",
+  "query": "What database are we using?",
+  "targetModel": "gpt-4o",
+  "mode": "hybrid",
+  "candidates": 124,
+  "selected": 6,
+  "matches": [
+    {
+      "memoryId": "mem_01HX...",
+      "fact": "Team chose Postgres for the billing service",
+      "score": 0.91,
+      "components": {
+        "semantic": 0.84,
+        "recency": 0.61,
+        "tagBoost": 0.20,
+        "rerank": 0.93
+      },
+      "reason": "semantic + tag:decision + rerank"
+    }
+  ],
+  "gml": {
+    "embedder": "text-embedding-3-large",
+    "reranker": "cohere-rerank-3"
+  },
+  "latencyMs": 38
+}
+```
+
+## Why trace
+
+<CardGroup cols={2}>
+  <Card title="Debug bad answers" icon="bug">
+    See exactly which facts the model was given.
+  </Card>
+
+  <Card title="Tune scoring" icon="sliders">
+    Inspect score components to adjust filters and rerankers.
+  </Card>
+
+  <Card title="Compliance" icon="shield">
+    Demonstrate which data influenced a decision.
+  </Card>
+
+  <Card title="Evaluation" icon="flask-vial">
+    Build offline evals against captured traces.
+  </Card>
+</CardGroup>
+
+<Note>
+  Traces are retained for 30 days on Pro and 1 year on Enterprise. Export them at any time.
+</Note>

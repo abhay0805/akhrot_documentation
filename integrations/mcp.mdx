@@ -1,0 +1,65 @@
+---
+title: "MCP"
+description: "Use Akhrot as a Model Context Protocol server."
+icon: "server"
+---
+
+Akhrot ships a first-class **Model Context Protocol (MCP)** server. Any MCP-enabled client — Claude Desktop, Cursor, Zed, VS Code, custom agents — can recall and ingest memories with no extra code.
+
+## Run the server
+
+<CodeGroup>
+
+```bash npx
+npx @akhrot/mcp
+```
+
+```bash docker
+docker run -e AKHROT_API_KEY=$AKHROT_API_KEY ghcr.io/gml-akhrot/mcp
+```
+
+</CodeGroup>
+
+## Configure in Claude Desktop
+
+```json
+{
+  "mcpServers": {
+    "akhrot": {
+      "command": "npx",
+      "args": ["-y", "@akhrot/mcp"],
+      "env": { "AKHROT_API_KEY": "ak_live_..." }
+    }
+  }
+}
+```
+
+## Configure in Cursor
+
+In `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "akhrot": {
+      "command": "npx",
+      "args": ["-y", "@akhrot/mcp"],
+      "env": { "AKHROT_API_KEY": "ak_live_..." }
+    }
+  }
+}
+```
+
+## Exposed tools
+
+| Tool | Description |
+| --- | --- |
+| `memory.ingest` | Persist a fact or conversation |
+| `memory.recall` | Recall facts for a query |
+| `memory.search` | Raw semantic search |
+| `graph.query` | Traverse the memory graph |
+| `trace.get` | Audit a recall |
+
+<Check>
+  Once installed, your MCP client can answer questions like _"What did I decide last week about the billing service?"_ with zero prompt scaffolding.
+</Check>
